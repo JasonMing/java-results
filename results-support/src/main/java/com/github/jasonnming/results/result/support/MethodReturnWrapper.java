@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.core.ResolvableType;
 
+import com.github.jasonnming.results.internal.functions.Functions;
 import com.github.jasonnming.results.exception.BusinessException;
 import com.github.jasonnming.results.result.generic.CommonResult;
 import com.github.jasonnming.results.result.basic.ResultCode;
@@ -197,7 +198,7 @@ public abstract class MethodReturnWrapper
         @Override
         public ResultCode resolveResultCode(final String code)
         {
-            return this.resultCodeResolver.resolve(this.resultCodeType, code);
+            return Functions.propagate(() -> this.resultCodeResolver.resolve(this.resultCodeType, code));
         }
     }
 }
