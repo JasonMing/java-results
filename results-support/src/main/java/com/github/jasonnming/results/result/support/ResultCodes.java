@@ -9,6 +9,8 @@ import org.apiguardian.api.API;
 import com.github.jasonnming.results.result.basic.ResultCode;
 
 /**
+ * 通用的结果码。
+ *
  * @author MiNG
  * @version 1.0.0
  * @since 1.0.0 (2018-07-19)
