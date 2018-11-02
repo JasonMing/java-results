@@ -116,6 +116,60 @@ foo-project
    }
    ```
 
+## Exception handling
+
+Usually, exceptions have to be converted to a unified form for returning.
+If your exceptions are extending from [`BusinessException`](results-support/src/main/java/com/github/jasonnming/results/exception/BusinessException.java), then you can simply use [`ResultInterceptor`](results-support/src/main/java/com/github/jasonnming/results/result/support/ResultInterceptor.java) to convert exceptions to corresponding result.
+
+Registers `ResultInterceptor` as an spring-aop advisor to enable above features.
+
+- Using application.xml
+
+   ```xml
+   <bean id="resultInterceptor" class="com.github.jasonnming.results.result.support.ResultInterceptor"/>
+
+   <aop:config>
+      <!-- RPC support -->
+      <aop:advisor advice-ref="resultInterceptor" pointcut="execution(* foo.client..*Client.*(..))"/>
+      <!-- REST support -->
+      <aop:advisor advice-ref="resultInterceptor" pointcut="@target(org.springframework.web.bind.annotation.RestController)"/>
+   </aop:config>
+   ```
+
+- Using @Aspect(i.e., programatically)
+
+   ```java
+   import org.aspectj.lang.annotation.*;
+   import com.github.jasonnming.results.result.support.MethodReturnWrapper;
+
+   @Aspect
+   class FooAspect
+   {
+       @Pointcut("execution(* foo.client..*Client.*(..))")
+       private void rpc() { }
+       
+       @Pointcut("@target(org.springframework.web.bind.annotation.RestController)")
+       private void rest() { }
+
+       @Around(pointcut="rpc() || rest()")
+       public Object wrap(ProceedingJoinPoint pjp)
+       {
+           Object value = null;
+           Exception exception = null;
+           try
+           {
+               value = pjp.proceed();
+           } catch (final Exception e) // Let the exceptions not derived class from Exception throw directly.
+           {
+               exception = e;
+           }
+
+           Object result = MethodReturnWrapper.forMethod(invocation.getMethod()).wrap(value, exception);
+           return result;
+       }
+   }
+   ```
+
 ---
 
 Enjoy!
