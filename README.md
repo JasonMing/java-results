@@ -136,37 +136,43 @@ Registers `ResultInterceptor` as an spring-aop advisor to enable above features.
    </aop:config>
    ```
 
-- Using @Aspect(i.e., programatically)
+- Using Java-config (Spring-boot)
 
    ```java
-   import org.aspectj.lang.annotation.*;
-   import com.github.jasonnming.results.result.support.MethodReturnWrapper;
+   import com.github.jasonnming.results.result.support.ResultInterceptor;
+   import org.springframework.aop.Advisor;
+   import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
+   import org.springframework.context.annotation.Bean;
+   import org.springframework.context.annotation.Configuration;
+   import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
-   @Aspect
-   class FooAspect
+   @Configuration
+   @EnableAspectJAutoProxy
+   class AopConfig
    {
-       @Pointcut("execution(* foo.client..*Client.*(..))")
-       private void rpc() { }
-       
-       @Pointcut("@target(org.springframework.web.bind.annotation.RestController)")
-       private void rest() { }
-
-       @Around(pointcut="rpc() || rest()")
-       public Object wrap(ProceedingJoinPoint pjp)
+       @Bean
+       Advisor rpcInterceptor()
        {
-           Object value = null;
-           Exception exception = null;
-           try
+           final AspectJExpressionPointcutAdvisor advisor = new AspectJExpressionPointcutAdvisor();
            {
-               value = pjp.proceed();
-           } catch (final Exception e) // Let the exceptions not derived class from Exception throw directly.
-           {
-               exception = e;
+               advisor.setExpression("execution(* com.github.jasonnming.results..*Client.*(..))");
+               advisor.setAdvice(new ResultInterceptor());
            }
-
-           Object result = MethodReturnWrapper.forMethod(invocation.getMethod()).wrap(value, exception);
-           return result;
+           return advisor;
        }
+
+       @Bean
+       Advisor webInterceptor()
+       {
+           final AspectJExpressionPointcutAdvisor advisor = new AspectJExpressionPointcutAdvisor();
+           {
+               advisor.setExpression("@target(org.springframework.web.bind.annotation.RestController)");
+               advisor.setAdvice(new ResultInterceptor());
+           }
+           return advisor;
+       }
+       
+       // Just register another advisors if necessary.
    }
    ```
 
