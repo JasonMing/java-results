@@ -123,6 +123,23 @@ If your exceptions are extending from [`BusinessException`](results-support/src/
 
 Registers `ResultInterceptor` as an spring-aop advisor to enable above features.
 
+First, you need adding `spring-aop` and `spring-aspects` (if using any AspectJ feature, e.g., pointcut expression):
+
+```xml
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-aop</artifactId>
+    <version>RELEASE</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-aspects</artifactId>
+    <version>RELEASE</version>
+</dependency>
+```
+
+Then, configure a pointcut to the interceptor:
+
 - Using application.xml
 
    ```xml
