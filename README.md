@@ -3,7 +3,7 @@ A common java rpc/rest result wrapper.
 
 ## Concepts
 
-- `results-api` is for the **client-side** libraries (e.g., api, client or sdk), it should be referenced in these libraries.
+- `results-api` is for the **client-side** using (e.g., api, client or sdk), it should be referenced in those libraries.
 - `results-support` is for the **server-side** supporting (e.g., result wrapping, exception converting, etc), it should **NOT** be referenced in the client-side libraries.
 
 > NOTE: All modules in this project are not deployed to maven center. Deploy to your own nexus or install to local repository to use them!
@@ -165,14 +165,14 @@ Then, configure a pointcut to the interceptor:
 
    @Configuration
    @EnableAspectJAutoProxy
-   class AopConfig
+   class FooConfig
    {
        @Bean
        Advisor rpcInterceptor()
        {
            final AspectJExpressionPointcutAdvisor advisor = new AspectJExpressionPointcutAdvisor();
            {
-               advisor.setExpression("execution(* com.github.jasonnming.results..*Client.*(..))");
+               advisor.setExpression("execution(* foo.client..*Client.*(..))");
                advisor.setAdvice(new ResultInterceptor());
            }
            return advisor;
@@ -190,6 +190,34 @@ Then, configure a pointcut to the interceptor:
        }
        
        // Just register another advisors if necessary.
+   }
+   ```
+
+- Using `@Aspect`
+
+   ```java
+   import com.github.jasonming.results.result.support.MethodReturnWrapper;
+   import org.aspectj.lang.ProceedingJoinPoint;
+   import org.aspectj.lang.annotation.Around;
+   import org.aspectj.lang.annotation.Aspect;
+   import org.aspectj.lang.annotation.Pointcut;
+   import org.aspectj.lang.reflect.MethodSignature;
+ 
+   @Aspect
+   class FooAspect
+   {
+       @Pointcut("execution(* foo.client..*Client.*(..))")
+       void rpcPointcut() {}
+   
+       @Pointcut("@target(org.springframework.web.bind.annotation.RestController)")
+       void webPointcut() {}
+   
+       @Around(value = "rpcPointcut() || webPointcut()")
+       Object intercept(final ProceedingJoinPoint joinPoint) throws Throwable
+       {
+           return MethodReturnWrapper.forMethod(((MethodSignature)joinPoint.getSignature()).getMethod())
+                   .wrapInvocation(joinPoint::proceed);
+       }
    }
    ```
 
