@@ -4,25 +4,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.apiguardian.api.API;
 import org.jetbrains.annotations.NotNull;
 
-import com.github.jasonnming.results.result.builder.MapResultBuilder;
-import com.github.jasonnming.results.result.builder.PagedListResultBuilder;
-import com.github.jasonnming.results.result.builder.SetResultBuilder;
-import com.github.jasonnming.results.result.builder.SingleResultBuilder;
+import com.github.jasonnming.results.internal.InternalUtils;
 import com.github.jasonnming.results.page.Page;
 import com.github.jasonnming.results.result.basic.Result;
 import com.github.jasonnming.results.result.basic.ResultCode;
@@ -30,6 +23,10 @@ import com.github.jasonnming.results.result.basic.WithMessage;
 import com.github.jasonnming.results.result.builder.CollectionResultBuilder;
 import com.github.jasonnming.results.result.builder.CommonResultBuilder;
 import com.github.jasonnming.results.result.builder.ListResultBuilder;
+import com.github.jasonnming.results.result.builder.MapResultBuilder;
+import com.github.jasonnming.results.result.builder.PagedListResultBuilder;
+import com.github.jasonnming.results.result.builder.SetResultBuilder;
+import com.github.jasonnming.results.result.builder.SingleResultBuilder;
 import com.github.jasonnming.results.result.generic.CollectionResult;
 import com.github.jasonnming.results.result.generic.CommonResult;
 import com.github.jasonnming.results.result.generic.ListResult;
@@ -62,27 +59,6 @@ public final class Results
     public static final WithMessage EMPTY_MESSAGE = () -> null;
 
     private Results() {}
-
-    private static <T> List<T> toList(final T[] array)
-    {
-        return Arrays.asList(array);
-    }
-
-    private static <T> List<T> toList(final Collection<T> collection)
-    {
-        return new ArrayList<>(collection);
-    }
-
-    private static <T> List<T> toList(final Iterable<T> iterable)
-    {
-        return StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
-    }
-
-    private static <T> List<T> toList(final Iterator<T> iterator)
-    {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.IMMUTABLE | Spliterator.ORDERED), false)
-                .collect(Collectors.toList());
-    }
 
     // region: CommonResult
 
@@ -1250,13 +1226,13 @@ public final class Results
         @SuppressWarnings("unchecked")
         public <TElement> ListResultBuilder<TResultCode, TElement> data(final TElement... data)
         {
-            return new ListResultBuilderImpl<>(toList(data), this);
+            return new ListResultBuilderImpl<>(InternalUtils.toList(data), this);
         }
 
         @Override
         public <TElement> ListResultBuilder<TResultCode, TElement> data(final List<TElement> data)
         {
-            return new ListResultBuilderImpl<>(toList(data), this);
+            return new ListResultBuilderImpl<>(InternalUtils.toList(data), this);
         }
 
         @Override
