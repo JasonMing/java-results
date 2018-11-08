@@ -8,10 +8,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.core.ResolvableType;
 
-import com.github.jasonnming.results.internal.functions.Functions;
 import com.github.jasonnming.results.exception.BusinessException;
-import com.github.jasonnming.results.result.generic.CommonResult;
+import com.github.jasonnming.results.internal.functions.FuncX;
+import com.github.jasonnming.results.internal.functions.Functions;
 import com.github.jasonnming.results.result.basic.ResultCode;
+import com.github.jasonnming.results.result.generic.CommonResult;
 
 /**
  * 方法返回数据/异常包装器，根据方法的声明将返回的数据或抛出的异常统一包装为{@link com.github.jasonnming.results.result.basic.CommonResult}或其更具体的子类。
@@ -27,14 +28,64 @@ public abstract class MethodReturnWrapper
 
     private MethodReturnWrapper() { /* Empty */ }
 
+    /**
+     * 根据{@code method}从缓存中获取创建{@link MethodReturnWrapper 包装器}实例。
+     * <p>
+     * 使用此方式创建的包装器在处理带有自定义返回码类型的方法时必须配置{@link Extensions#RESULT_CODE_RESOLVER}，具体设置方法见{@link Extensions}。
+     * <p>
+     * 如需要对某个方法设置专用的结果码解释器，请使用{@link #create(Method, ResultCodeResolver)}生成一个不会被缓存的临时实例；
+     * 如需要同时控制缓存，请使用{@link #create(Method, ResultCodeResolver, boolean)}。
+     *
+     * @param method 需要包装的方法。
+     *
+     * @return 已缓存的包装器实例。
+     *
+     * @see #create(Method, ResultCodeResolver)
+     * @see #create(Method, ResultCodeResolver, boolean)
+     */
     public static MethodReturnWrapper forMethod(final Method method)
     {
-        return forMethod(method, null);
+        return RETURN_WRAPPER_CACHE.computeIfAbsent(method, x -> createProcessor(x, null));
     }
 
-    public static MethodReturnWrapper forMethod(final Method method, @Nullable final ResultCodeResolver resultCodeResolver)
+    /**
+     * 根据{@code method}及指定的{@code resultCodeResolver}创建{@link MethodReturnWrapper 包装器}。
+     * <p>
+     * 使用此方式创建的包装器将不会被缓存。
+     * 如需缓存，请使用{@link #create(Method, ResultCodeResolver, boolean)}。
+     *
+     * @param method             需要包装的方法。
+     * @param resultCodeResolver 结果码解释器。
+     *
+     * @return 新创建的包装器实例。
+     *
+     * @see #create(Method, ResultCodeResolver, boolean)
+     */
+    public static MethodReturnWrapper create(final Method method, @Nullable final ResultCodeResolver resultCodeResolver)
     {
-        return RETURN_WRAPPER_CACHE.computeIfAbsent(method, x -> createProcessor(x, resultCodeResolver));
+        return create(method, resultCodeResolver, false);
+    }
+
+    /**
+     * 根据{@code method}及指定的{@code resultCodeResolver}创建{@link MethodReturnWrapper 包装器}，
+     * 并根据{@code overrideCache}确定创建的对象是否会写入缓存（会覆盖原有实例）。
+     * <p>
+     * 如果{@code overrideCache}为{@code true}，则后续使用{@link #forMethod(Method)}时可使用此次创建的实例。
+     *
+     * @param method             需要包装的方法。
+     * @param resultCodeResolver 结果码解释器。
+     * @param overrideCache      是否写入缓存。
+     *
+     * @return 新创建的包装器实例。
+     */
+    public static MethodReturnWrapper create(final Method method, @Nullable final ResultCodeResolver resultCodeResolver, final boolean overrideCache)
+    {
+        final MethodReturnWrapper wrapper = createProcessor(method, resultCodeResolver);
+        if (overrideCache)
+        {
+            RETURN_WRAPPER_CACHE.put(method, wrapper);
+        }
+        return wrapper;
     }
 
     private static MethodReturnWrapper createProcessor(final Method method, @Nullable final ResultCodeResolver resultCodeResolver)
@@ -70,21 +121,21 @@ public abstract class MethodReturnWrapper
      * <p>
      * 包装遵循以下规则：
      * <table border="1" cellpadding="5px">
-     *     <tr>
-     *         <th style="padding-right:5px">返回值声明 \ 执行结果</th>
-     *         <td>返回</td>
-     *         <td>异常</td>
-     *     </tr>
-     *     <tr>
-     *         <td align="right" style="padding-right:5px">{@code CommonResult}+</td>
-     *         <td>与方法声明一致</td>
-     *         <td>与方法声明一致</td>
-     *     </tr>
-     *     <tr>
-     *         <td align="right" style="padding-right:5px">{@code Object}</td>
-     *         <td>根据返回对象类型判断</td>
-     *         <td>{@code CommonResult}</td>
-     *     </tr>
+     * <tr>
+     * <th style="padding-right:5px">返回值声明 \ 执行结果</th>
+     * <td>返回</td>
+     * <td>异常</td>
+     * </tr>
+     * <tr>
+     * <td align="right" style="padding-right:5px">{@code CommonResult}+</td>
+     * <td>与方法声明一致</td>
+     * <td>与方法声明一致</td>
+     * </tr>
+     * <tr>
+     * <td align="right" style="padding-right:5px">{@code Object}</td>
+     * <td>根据返回对象类型判断</td>
+     * <td>{@code CommonResult}</td>
+     * </tr>
      * </table>
      *
      * @param returnValue 方法返回的数据。
@@ -93,7 +144,7 @@ public abstract class MethodReturnWrapper
      * @return 包装过的数据/异常。
      */
     @NotNull
-    public com.github.jasonnming.results.result.basic.CommonResult wrap(final Object returnValue, @Nullable final Throwable exception)
+    public com.github.jasonnming.results.result.basic.CommonResult wrapReturn(final Object returnValue, @Nullable final Throwable exception)
     {
         // 1. When returning CommonResult+, return directly.
         if (returnValue instanceof com.github.jasonnming.results.result.basic.CommonResult)
@@ -121,6 +172,33 @@ public abstract class MethodReturnWrapper
 
         // NOTE: The type of return value should only determine by the static declaration of method's return type.
         return this.resolveResult(resultCode, returnValue);
+    }
+
+    /**
+     * 包装一个执行过程，其中执行返回值和抛出的异常（仅限{@link Exception}及其子类）会被转换为相应的结果对象。
+     * 返回的具体类型请参阅{@link #wrapReturn(Object, Throwable)}。
+     *
+     * @param invocation 会抛出异常的执行内容。
+     * @param <X>        {@code invocation}声明的抛出异常的类型。
+     *
+     * @return 结果对象。
+     *
+     * @throws X {@code invocation}执行过程中抛出的非{@link Exception}类型的异常。
+     * @see #wrapReturn(Object, Throwable)
+     */
+    public <X extends Throwable> com.github.jasonnming.results.result.basic.CommonResult wrapInvocation(final FuncX<?, X> invocation) throws X
+    {
+        Object value = null;
+        Exception exception = null;
+        try
+        {
+            value = invocation.invokeX();
+        } catch (final Exception e) // Let the exceptions not derived class from Exception throw directly.
+        {
+            exception = e;
+        }
+
+        return this.wrapReturn(value, exception);
     }
 
     private static class ObjectWrapper extends MethodReturnWrapper

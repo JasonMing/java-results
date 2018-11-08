@@ -17,17 +17,8 @@ public class ResultInterceptor implements MethodInterceptor
     @Override
     public Object invoke(final MethodInvocation invocation) throws Throwable
     {
-        Object value = null;
-        Exception exception = null;
-        try
-        {
-            value = invocation.proceed();
-        } catch (final Exception e) // Let the exceptions not derived class from Exception throw directly.
-        {
-            exception = e;
-        }
-
-        final Object result = MethodReturnWrapper.forMethod(invocation.getMethod()).wrap(value, exception);
-        return result;
+        return MethodReturnWrapper
+                .forMethod(invocation.getMethod())
+                .wrapInvocation(invocation::proceed);
     }
 }
