@@ -16,7 +16,12 @@ import org.apiguardian.api.API;
 import org.jetbrains.annotations.NotNull;
 
 import com.github.jasonnming.results.internal.InternalUtils;
+import com.github.jasonnming.results.page.FixedPage;
 import com.github.jasonnming.results.page.Page;
+import com.github.jasonnming.results.page.PagedList;
+import com.github.jasonnming.results.page.RollingPage;
+import com.github.jasonnming.results.page.builder.PageBuilder;
+import com.github.jasonnming.results.page.support.Pages;
 import com.github.jasonnming.results.result.basic.Result;
 import com.github.jasonnming.results.result.basic.ResultCode;
 import com.github.jasonnming.results.result.basic.WithMessage;
@@ -349,8 +354,8 @@ public final class Results
      *
      * @return {@link DefaultPagedListResult}实例。
      */
-    public static <TResultCode extends ResultCode, TElement>
-    PagedListResult<TResultCode, TElement> pagedListResult(final TResultCode resultCode)
+    public static <TResultCode extends ResultCode, TPage extends Page, TElement>
+    PagedListResult<TResultCode, TPage, TElement> pagedListResult(final TResultCode resultCode)
     {
         return new DefaultPagedListResult<>(resultCode);
     }
@@ -366,8 +371,8 @@ public final class Results
      *
      * @return {@link DefaultPagedListResult}实例。
      */
-    public static <TResultCode extends ResultCode, TElement>
-    PagedListResult<TResultCode, TElement> pagedListResult(final TResultCode resultCode, final String message)
+    public static <TResultCode extends ResultCode, TPage extends Page, TElement>
+    PagedListResult<TResultCode, TPage, TElement> pagedListResult(final TResultCode resultCode, final String message)
     {
         return new DefaultPagedListResult<>(resultCode, message, null);
     }
@@ -383,8 +388,8 @@ public final class Results
      *
      * @return {@link DefaultPagedListResult}实例。
      */
-    public static <TResultCode extends ResultCode, TElement>
-    PagedListResult<TResultCode, TElement> pagedListResult(final TResultCode resultCode, final String message, final String debugMessage)
+    public static <TResultCode extends ResultCode, TPage extends Page, TElement>
+    PagedListResult<TResultCode, TPage, TElement> pagedListResult(final TResultCode resultCode, final String message, final String debugMessage)
     {
         return new DefaultPagedListResult<>(resultCode, message, debugMessage);
     }
@@ -394,21 +399,19 @@ public final class Results
      * 如果{@link TResultCode}实现了{@link WithMessage}接口，此结果的用户消息及调试消息将会从{@code resultCode}中获取。
      *
      * @param resultCode    结果码对象，如果{@link TResultCode}实现了{@link WithMessage}接口，此结果的用户消息及调试消息将会从{@code resultCode}中获取。
-     * @param data          装载的数据。
-     * @param page          分页信息，包含{@link Page#getPage() 页码}及{@link Page#getPageSize() 每页数量}（此参数通常从请求处获取）。
-     * @param totalSize     符合当前查询的所有记录总数。
+     * @param data          带有分页信息的数据，可以通过{@link Pages}创建。
      * @param <TResultCode> 结果码类型。
      * @param <TElement>    列表中装载数据的类型。
+     * @param <TPage>       分页类型。
      *
      * @return {@link DefaultPagedListResult}实例。
      */
-    public static <TResultCode extends ResultCode, TElement>
-    PagedListResult<TResultCode, TElement> pagedListResult(final TResultCode resultCode, final List<TElement> data, final Page page, final long totalSize)
+    public static <TResultCode extends ResultCode, TPage extends Page, TElement>
+    PagedListResult<TResultCode, TPage, TElement> pagedListResult(final TResultCode resultCode, final PagedList<TPage, TElement> data)
     {
         return builder(resultCode)
-                .data(data)
-                .page(page)
-                .totalSize(totalSize)
+                .data(data.getList())
+                .page(data.getPage())
                 .build();
     }
 
@@ -418,22 +421,20 @@ public final class Results
      *
      * @param resultCode    结果码对象，如果{@link TResultCode}实现了{@link WithMessage}接口，此结果的调试消息将会从{@code resultCode}中获取。
      * @param message       用户可读消息。
-     * @param data          装载的数据。
-     * @param page          分页信息，包含{@link Page#getPage() 页码}及{@link Page#getPageSize() 每页数量}（此参数通常从请求处获取）。
-     * @param totalSize     符合当前查询的所有记录总数。
+     * @param data          带有分页信息的数据，可以通过{@link Pages}创建。
      * @param <TResultCode> 结果码类型。
      * @param <TElement>    列表中装载数据的类型。
+     * @param <TPage>       分页类型。
      *
      * @return {@link DefaultPagedListResult}实例。
      */
-    public static <TResultCode extends ResultCode, TElement>
-    PagedListResult<TResultCode, TElement> pagedListResult(final TResultCode resultCode, final String message, final List<TElement> data, final Page page, final long totalSize)
+    public static <TResultCode extends ResultCode, TPage extends Page, TElement>
+    PagedListResult<TResultCode, TPage, TElement> pagedListResult(final TResultCode resultCode, final String message, final PagedList<TPage, TElement> data)
     {
         return builder(resultCode)
                 .message(message)
-                .data(data)
-                .page(page)
-                .totalSize(totalSize)
+                .data(data.getList())
+                .page(data.getPage())
                 .build();
     }
 
@@ -443,23 +444,21 @@ public final class Results
      * @param resultCode    结果码对象。
      * @param message       用户可读消息。
      * @param debugMessage  调试诊断消息。
-     * @param data          装载的数据。
-     * @param page          分页信息，包含{@link Page#getPage() 页码}及{@link Page#getPageSize() 每页数量}（此参数通常从请求处获取）。
-     * @param totalSize     符合当前查询的所有记录总数。
+     * @param data          带有分页信息的数据，可以通过{@link Pages}创建。
      * @param <TResultCode> 结果码类型。
      * @param <TElement>    列表中装载数据的类型。
+     * @param <TPage>       分页类型。
      *
      * @return {@link DefaultPagedListResult}实例。
      */
-    public static <TResultCode extends ResultCode, TElement>
-    PagedListResult<TResultCode, TElement> pagedListResult(final TResultCode resultCode, final String message, final String debugMessage, final List<TElement> data, final Page page, final long totalSize)
+    public static <TResultCode extends ResultCode, TPage extends Page, TElement>
+    PagedListResult<TResultCode, TPage, TElement> pagedListResult(final TResultCode resultCode, final String message, final String debugMessage, final PagedList<TPage, TElement> data)
     {
         return builder(resultCode)
                 .message(message)
                 .debugMessage(debugMessage)
-                .data(data)
-                .page(page)
-                .totalSize(totalSize)
+                .data(data.getList())
+                .page(data.getPage())
                 .build();
     }
 
@@ -469,21 +468,18 @@ public final class Results
      *
      * @param resultCode    结果码对象，如果{@link TResultCode}实现了{@link WithMessage}接口，此结果的用户消息及调试消息将会从{@code resultCode}中获取。
      * @param data          装载的数据。
-     * @param page          分页请求页码（通常从请求中获取）。
-     * @param pageSize      分页每页数量（通常从请求中获取）。
-     * @param totalSize     符合当前查询的所有记录总数。
+     * @param page          分页信息。
      * @param <TResultCode> 结果码类型。
      * @param <TElement>    列表中装载数据的类型。
      *
      * @return {@link DefaultPagedListResult}实例。
      */
-    public static <TResultCode extends ResultCode, TElement>
-    PagedListResult<TResultCode, TElement> pagedListResult(final TResultCode resultCode, final List<TElement> data, final long page, final long pageSize, final long totalSize)
+    public static <TResultCode extends ResultCode, TPage extends Page, TElement>
+    PagedListResult<TResultCode, TPage, TElement> pagedListResult(final TResultCode resultCode, final List<TElement> data, final TPage page)
     {
         return builder(resultCode)
                 .data(data)
-                .page(page, pageSize)
-                .totalSize(totalSize)
+                .page(page)
                 .build();
     }
 
@@ -494,22 +490,19 @@ public final class Results
      * @param resultCode    结果码对象，如果{@link TResultCode}实现了{@link WithMessage}接口，此结果的调试消息将会从{@code resultCode}中获取。
      * @param message       用户可读消息。
      * @param data          装载的数据。
-     * @param page          分页请求页码（通常从请求中获取）。
-     * @param pageSize      分页每页数量（通常从请求中获取）。
-     * @param totalSize     符合当前查询的所有记录总数。
+     * @param page          分页信息。
      * @param <TResultCode> 结果码类型。
      * @param <TElement>    列表中装载数据的类型。
      *
      * @return {@link DefaultPagedListResult}实例。
      */
-    public static <TResultCode extends ResultCode, TElement>
-    PagedListResult<TResultCode, TElement> pagedListResult(final TResultCode resultCode, final String message, final List<TElement> data, final long page, final long pageSize, final long totalSize)
+    public static <TResultCode extends ResultCode, TPage extends Page, TElement>
+    PagedListResult<TResultCode, TPage, TElement> pagedListResult(final TResultCode resultCode, final String message, final List<TElement> data, final TPage page)
     {
         return builder(resultCode)
                 .message(message)
                 .data(data)
-                .page(page, pageSize)
-                .totalSize(totalSize)
+                .page(page)
                 .build();
     }
 
@@ -520,23 +513,20 @@ public final class Results
      * @param message       用户可读消息。
      * @param debugMessage  调试诊断消息。
      * @param data          装载的数据。
-     * @param page          分页请求页码（通常从请求中获取）。
-     * @param pageSize      分页每页数量（通常从请求中获取）。
-     * @param totalSize     符合当前查询的所有记录总数。
+     * @param page          分页信息。
      * @param <TResultCode> 结果码类型。
      * @param <TElement>    列表中装载数据的类型。
      *
      * @return {@link DefaultPagedListResult}实例。
      */
-    public static <TResultCode extends ResultCode, TElement>
-    PagedListResult<TResultCode, TElement> pagedListResult(final TResultCode resultCode, final String message, final String debugMessage, final List<TElement> data, final long page, final long pageSize, final long totalSize)
+    public static <TResultCode extends ResultCode, TPage extends Page, TElement>
+    PagedListResult<TResultCode, TPage, TElement> pagedListResult(final TResultCode resultCode, final String message, final String debugMessage, final List<TElement> data, final TPage page)
     {
         return builder(resultCode)
                 .message(message)
                 .debugMessage(debugMessage)
                 .data(data)
-                .page(page, pageSize)
-                .totalSize(totalSize)
+                .page(page)
                 .build();
     }
 
@@ -995,8 +985,7 @@ public final class Results
         {
             if (resultType == PagedListResult.class || resultType == com.github.jasonnming.results.result.basic.PagedListResult.class)
             {
-                // TODO: support PagedListResult
-                throw new UnsupportedOperationException("TODO");
+                return (TResult)pagedListResult(resultCode, message, debugMessage, (PagedList<?, ?>)data);
             }
             if (resultType == ListResult.class || resultType == com.github.jasonnming.results.result.basic.ListResult.class)
             {
@@ -1115,6 +1104,9 @@ public final class Results
         if (data == null)
         {
             return Results.commonResult(resultCode, message, debugMessage);
+        } else if (data instanceof PagedList)
+        {
+            return Results.pagedListResult(resultCode, message, debugMessage, ((PagedList<?, ?>)data));
         } else if (data.getClass().isArray())
         {
             return Results.listResult(resultCode, message, debugMessage, Arrays.asList((Object[])data));
@@ -1262,7 +1254,7 @@ public final class Results
         }
 
         @Override
-        public <TElement> PagedListResult<TResultCode, TElement> buildPagedListResult()
+        public <TPage extends Page, TElement> PagedListResult<TResultCode, TPage, TElement> buildPagedListResult()
         {
             return new DefaultPagedListResult<>(this.resultCode, this.message, this.debugMessage);
         }
@@ -1396,72 +1388,49 @@ public final class Results
             this.delegatedBuilder = delegatedBuilder;
         }
 
-        private PagedListResultBuilderImpl<TResultCode, TElement> convertAndSet(final Consumer<PagedListResultBuilderImpl> setter)
+        private <TPage extends Page> PagedListResultBuilderImpl<TResultCode, TPage, TElement> convertAndSet(final Consumer<PagedListResultBuilderImpl> setter)
         {
-            final PagedListResultBuilderImpl<TResultCode, TElement> ret = (this instanceof PagedListResultBuilderImpl)
-                    ? (PagedListResultBuilderImpl<TResultCode, TElement>)this
+            final PagedListResultBuilderImpl<TResultCode, TPage, TElement> ret = (this instanceof PagedListResultBuilderImpl)
+                    ? (PagedListResultBuilderImpl<TResultCode, TPage, TElement>)this
                     : new PagedListResultBuilderImpl<>(this.data, this.delegatedBuilder);
             setter.accept(ret);
             return ret;
         }
 
         @Override
-        public PagedListResultBuilder<TResultCode, TElement> page(final long page, final long pageSize)
+        public <TPage extends Page> PagedListResultBuilder<TResultCode, TPage, TElement> page(final TPage page)
         {
-            if (page < 1 || pageSize < 1)
+            if (page == null)
             {
-                throw new IllegalArgumentException("Property [page] and [pageSize] must start from 1.");
+                throw new IllegalArgumentException("Property [currentPage] must start from 0.");
             }
 
-            return this.convertAndSet(x ->
-            {
-                x.page = page;
-                x.pageSize = pageSize;
-            });
+            //noinspection unchecked
+            return this.convertAndSet(x -> x.pageBuilder.from(page));
         }
 
         @Override
-        public PagedListResultBuilder<TResultCode, TElement> page(final Page pageRequest)
+        public PagedListResultBuilder<TResultCode, Page, TElement> page(final long currentPage, final long pageSize)
         {
-            if (pageRequest != null)
-            {
-                return this.page(pageRequest.getPage(), pageRequest.getPageSize());
-            } else
-            {
-                return this.convertAndSet(x ->
-                {
-                    x.page = null;
-                    x.pageSize = null;
-                });
-            }
+            return this.convertAndSet(x -> x.pageBuilder.page(currentPage, pageSize));
         }
 
         @Override
-        public PagedListResultBuilder<TResultCode, TElement> hasNextPage(final boolean hasNextPage)
+        public PagedListResultBuilder<TResultCode, RollingPage, TElement> hasNextPage(final boolean hasNextPage)
         {
-            return this.convertAndSet(x -> x.hasNextPage = hasNextPage);
+            return this.convertAndSet(x -> x.pageBuilder.hasNextPage(hasNextPage));
         }
 
         @Override
-        public PagedListResultBuilder<TResultCode, TElement> totalPage(final long totalPage)
+        public PagedListResultBuilder<TResultCode, FixedPage, TElement> totalPage(final long totalPage)
         {
-            if (totalPage < 0)
-            {
-                throw new IllegalArgumentException("Property [totalPage] must start from 0.");
-            }
-
-            return this.convertAndSet(x -> x.totalPage = totalPage);
+            return this.convertAndSet(x -> x.pageBuilder.totalPage(totalPage));
         }
 
         @Override
-        public PagedListResultBuilder<TResultCode, TElement> totalSize(final long totalSize)
+        public PagedListResultBuilder<TResultCode, FixedPage, TElement> totalSize(final long totalSize)
         {
-            if (totalSize < 0)
-            {
-                throw new IllegalArgumentException("Property [totalSize] must start from 0.");
-            }
-
-            return this.convertAndSet(x -> x.totalSize = totalSize);
+            return this.convertAndSet(x -> x.pageBuilder.totalSize(totalSize));
         }
 
         @Override
@@ -1472,86 +1441,31 @@ public final class Results
         }
     }
 
-    private static class PagedListResultBuilderImpl<TResultCode extends ResultCode, TElement>
+    private static class PagedListResultBuilderImpl<TResultCode extends ResultCode, TPage extends Page, TElement>
             extends ListResultBuilderImpl<TResultCode, TElement>
-            implements PagedListResultBuilder<TResultCode, TElement>
+            implements PagedListResultBuilder<TResultCode, TPage, TElement>
     {
-        private boolean restricted;
-
-        private Long page = null;
-
-        private Long pageSize = null;
-
-        private Long totalPage = null;
-
-        private Long totalSize = null;
-
-        private Boolean hasNextPage = null;
+        private final PageBuilder pageBuilder;
 
         private PagedListResultBuilderImpl(final List<TElement> data, final CommonResultBuilderImpl<TResultCode> delegatedBuilder)
         {
             super(data, delegatedBuilder);
+            this.pageBuilder = Pages.builder();
         }
 
         @Override
-        public PagedListResultBuilder<TResultCode, TElement> restricted(final boolean restricted)
+        public PagedListResultBuilder<TResultCode, TPage, TElement> restricted(final boolean restricted)
         {
-            this.restricted = restricted;
+            this.pageBuilder.restricted(restricted);
             return this;
         }
 
-        private void check()
-        {
-            // Check unexpected cases
-            if ((this.page == null) ^ (this.pageSize == null))
-            {
-                throw new IllegalArgumentException("Property [page] and [pageSize] must be null/not-null at the same time.");
-            }
-
-            // Try calculate totalPage
-            if (this.pageSize != null && this.totalSize != null)
-            {
-                if (this.totalPage == null)
-                {
-                    // Calculates totalPage via pageSize and totalSize.
-                    this.totalPage = (this.totalSize / this.pageSize) + Math.min(0, this.totalSize % this.pageSize);
-                } else
-                {
-                    if (this.restricted)
-                    {
-                        // Prevent totalPage, pageSize and totalSize are both set.
-                        throw new IllegalArgumentException(
-                                "Property [totalPage] can be inferred from [pageSize] and [totalSize], set [restricted] to false to force apply it.");
-                    }
-                }
-            }
-
-            // Try calculate hasNextPage
-            if (this.page != null && this.totalPage != null)
-            {
-                if (this.hasNextPage == null)
-                {
-                    // Calculates hasNextPage via page and totalPage.
-                    this.hasNextPage = this.page < this.totalPage;
-                } else
-                {
-                    if (this.restricted)
-                    {
-                        // Prevent hasNextPage, page and totalPage are both set.
-                        throw new IllegalArgumentException(
-                                "Property [hasNextPage] can be inferred from [page] and [totalPage], set [restricted] to false to force apply it.");
-                    }
-                }
-            }
-        }
-
+        @SuppressWarnings("unchecked")
         @Override
-        public PagedListResult<TResultCode, TElement> build()
+        public PagedListResult<TResultCode, TPage, TElement> build()
         {
-            this.check();
             return this.delegatedBuilder.build((resultCode, message, debugMessage) ->
-                    new DefaultPagedListResult<>(resultCode, message, debugMessage, this.data,
-                            this.page, this.pageSize, this.hasNextPage, this.totalPage, this.totalSize));
+                    new DefaultPagedListResult<>(resultCode, message, debugMessage, this.data, (TPage)this.pageBuilder.build()));
         }
     }
 

@@ -3,6 +3,7 @@ package com.github.jasonnming.results.result.support;
 import java.util.List;
 
 import com.github.jasonnming.results.result.basic.ResultCode;
+import com.github.jasonnming.results.result.basic.WithMessage;
 import com.github.jasonnming.results.result.generic.ListResult;
 
 /**
@@ -29,9 +30,9 @@ class DefaultListResult<TResultCode extends ResultCode, TElement>
     }
 
     /**
-     * 使用{@link ResultCode}构建结果对象
+     * 使用{@link ResultCode}构建结果对象。
      *
-     * @param resultCode 结果编码
+     * @param resultCode 结果编码。
      */
     DefaultListResult(final TResultCode resultCode)
     {
@@ -42,8 +43,9 @@ class DefaultListResult<TResultCode extends ResultCode, TElement>
     /**
      * 使用{@link ResultCode}和自定义的消息构建结果对象
      *
-     * @param resultCode 结果编码
-     * @param message    自定义消息，为{@code null}时使用{@link ResultCode#getMessage()}作为消息
+     * @param resultCode   结果编码。
+     * @param message      自定义用户可读消息，为{@code null}时如果{@link TResultCode}实现了{@link WithMessage}接口，则使用{@code resultCode.getMessage()}作为用户消息。
+     * @param debugMessage 自定义调试诊断消息，为{@code null}时如果{@link TResultCode}实现了{@link WithMessage}接口，则使用{@code resultCode.getDebugMessage()}作为调试消息。
      */
     DefaultListResult(final TResultCode resultCode, final String message, final String debugMessage)
     {
@@ -52,11 +54,12 @@ class DefaultListResult<TResultCode extends ResultCode, TElement>
     }
 
     /**
-     * 使用{@link ResultCode}和自定义的消息和{@code data}构建结果对象
+     * 使用{@link ResultCode}和自定义的消息和{@code data}构建结果对象。
      *
-     * @param resultCode 结果编码
-     * @param message    自定义消息，为{@code null}时使用{@link ResultCode#getMessage()}作为消息
-     * @param data       结果返回的列表
+     * @param resultCode   结果编码。
+     * @param message      自定义用户可读消息，为{@code null}时如果{@link TResultCode}实现了{@link WithMessage}接口，则使用{@code resultCode.getMessage()}作为用户消息。
+     * @param debugMessage 自定义调试诊断消息，为{@code null}时如果{@link TResultCode}实现了{@link WithMessage}接口，则使用{@code resultCode.getDebugMessage()}作为调试消息。
+     * @param data         结果返回的列表。
      */
     DefaultListResult(final TResultCode resultCode, final String message, final String debugMessage, final List<TElement> data)
     {

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apiguardian.api.API;
 
+import com.github.jasonnming.results.page.Page;
 import com.github.jasonnming.results.result.basic.ResultCode;
 import com.github.jasonnming.results.result.basic.WithMessage;
 import com.github.jasonnming.results.result.generic.CollectionResult;
@@ -134,11 +135,12 @@ public interface CommonResultBuilder<TResultCode extends ResultCode>
     /**
      * 构建一个不含数据的{@link PagedListResult}，此方法通常用于构建表述失败的结果对象。
      *
+     * @param <TPage>    分页的数据类型。
      * @param <TElement> 结果对象内的数据类型。
      *
      * @return 不含数据的 {@link PagedListResult}，{@link PagedListResult#getData()}将会返回{@code null}。
      */
-    <TElement> PagedListResult<TResultCode, TElement> buildPagedListResult();
+    <TPage extends Page, TElement> PagedListResult<TResultCode, TPage, TElement> buildPagedListResult();
 
     /**
      * 构建一个不含数据的{@link SetResult}，此方法通常用于构建表述失败的结果对象。

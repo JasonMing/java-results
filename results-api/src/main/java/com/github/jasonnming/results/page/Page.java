@@ -1,28 +1,26 @@
 package com.github.jasonnming.results.page;
 
-import org.apiguardian.api.API;
-
 /**
- * 分页信息。
+ * 分页。
  *
  * @author MiNG
  * @version 1.0.0
- * @since 1.0.0 (2017-07-20)
+ * @since 1.0.0 (2018-10-22)
  */
-@API(status = API.Status.EXPERIMENTAL, since = "1.0.0")
 public interface Page
 {
     /**
-     * 获取期望页码，从1开始。
+     * 获取当前页码，从1开始。
      *
-     * @return 期望页码
+     * @return 当前页码。
      */
-    long getPage();
+    Long getCurrentPage();
 
     /**
-     * 获取每页期望数据量，从0开始。
+     * 获取分页大小，从0开始。
+     * 此值仅表示分页的容量，并不表示实际数据大小。
      *
-     * @return 每页期望数据量
+     * @return 分页大小。
      */
-    long getPageSize();
+    Long getPageSize();
 }

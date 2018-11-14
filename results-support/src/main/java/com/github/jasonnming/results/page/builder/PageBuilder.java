@@ -1,40 +1,27 @@
-package com.github.jasonnming.results.result.builder;
-
-import java.util.List;
-
-import org.apiguardian.api.API;
+package com.github.jasonnming.results.page.builder;
 
 import com.github.jasonnming.results.page.FixedPage;
 import com.github.jasonnming.results.page.Page;
 import com.github.jasonnming.results.page.RollingPage;
-import com.github.jasonnming.results.result.basic.ResultCode;
-import com.github.jasonnming.results.result.generic.ListResult;
+import com.github.jasonnming.results.result.builder.PagedListResultBuilder;
 
 /**
- * 构建{@link ListResult}的构建器。
- *
- * @param <TResultCode> 构建结果的结果码类型。
- * @param <TElement>    存放在{@link List}中的数据类型。
+ * 分页对象构建器。
  *
  * @author MiNG
  * @version 1.0.0
- * @since 1.0.0 (2017-07-26)
+ * @since 1.0.0 (2018-11-08)
  */
-@API(status = API.Status.STABLE, since = "1.0.0")
-public interface ListResultBuilder<TResultCode extends ResultCode, TElement>
-        extends FinalStageResultBuilder<ListResult<TResultCode, TElement>>
+public interface PageBuilder<TPage extends Page>
 {
     /**
-     * 从{@link Page 分页信息}设置列表结果的分页信息。
+     * 从{@code page}复制相关信息到当前构建器。
      *
-     * @param page 分页信息。
+     * @param page
      *
-     * @return {@link PagedListResultBuilder}。
-     *
-     * @throws IllegalArgumentException 当{@link Page#getCurrentPage()}或{@link Page#getPageSize()}小于1。
+     * @return
      */
-    @API(status = API.Status.EXPERIMENTAL, since = "1.0.0")
-    <TPage extends Page> PagedListResultBuilder<TResultCode, TPage, TElement> page(TPage page);
+    PageBuilder<TPage> from(TPage page);
 
     /**
      * 设置列表结果的分页信息。
@@ -46,7 +33,7 @@ public interface ListResultBuilder<TResultCode extends ResultCode, TElement>
      *
      * @throws IllegalArgumentException 当{@code currentPage}或{@code pageSize}小于1。
      */
-    PagedListResultBuilder<TResultCode, Page, TElement> page(long currentPage, long pageSize);
+    PageBuilder<Page> page(long currentPage, long pageSize);
 
     /**
      * 设置列表结果是否存在下一页，在没有设置过此属性时将会通过假面表达式在{@link #build()}时计算得出：
@@ -57,9 +44,9 @@ public interface ListResultBuilder<TResultCode extends ResultCode, TElement>
      *
      * @param hasNextPage 是否存在下一页。
      *
-     * @return {@link PagedListResultBuilder}。
+     * @return 当前 {@link PageBuilder}。
      */
-    PagedListResultBuilder<TResultCode, RollingPage, TElement> hasNextPage(boolean hasNextPage);
+    PageBuilder<RollingPage> hasNextPage(boolean hasNextPage);
 
     /**
      * 设置列表结果的总页数，在没有设置过此属性时将会通过下面表达式在{@link #build()}时计算得出：
@@ -68,20 +55,38 @@ public interface ListResultBuilder<TResultCode extends ResultCode, TElement>
      *
      * @param totalPage 总页数，必须大于或等于0（0表示查询的数据集没有任何数据）。
      *
-     * @return {@link PagedListResultBuilder}。
+     * @return 当前 {@link PageBuilder}。
      *
      * @throws IllegalArgumentException 当{@code totalPage}小于0。
      */
-    PagedListResultBuilder<TResultCode, FixedPage, TElement> totalPage(long totalPage);
+    PageBuilder<FixedPage> totalPage(long totalPage);
 
     /**
      * 设置列表结果的总数据大小（非当前分页实际数据大小）。
      *
      * @param totalSize 当前页大小，必须大于或等于0（0表示查询的数据集没有任何数据）。
      *
-     * @return {@link PagedListResultBuilder}。
+     * @return 当前 {@link PageBuilder}。
      *
      * @throws IllegalArgumentException {@code totalSize}小于0。
      */
-    PagedListResultBuilder<TResultCode, FixedPage, TElement> totalSize(long totalSize);
+    PageBuilder<FixedPage> totalSize(long totalSize);
+
+    /**
+     * （可选）指示在已经设置{@link #page pageSize}及{@link #totalSize}的情况下是否允许设置{@link #totalPage}，默认为{@code true}。
+     *
+     * @param restricted 在已经设置{@link #page pageSize}及{@link #totalSize}的情况下是否允许设置{@link #totalPage}。
+     *
+     * @return 当前 {@link PageBuilder}。
+     *
+     * @apiNote 此标识设置后只会影响最终 {@link #build()}方法中执行的逻辑，不会影响其它的设置方法。
+     */
+    PageBuilder<TPage> restricted(boolean restricted);
+
+    /**
+     * 构建完整的{@link Page}。
+     *
+     * @return 完整的 {@link Page}。
+     */
+    TPage build();
 }

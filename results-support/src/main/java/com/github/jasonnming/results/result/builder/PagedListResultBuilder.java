@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apiguardian.api.API;
 
+import com.github.jasonnming.results.page.Page;
 import com.github.jasonnming.results.result.basic.ResultCode;
 import com.github.jasonnming.results.result.generic.PagedListResult;
 
@@ -18,7 +19,7 @@ import com.github.jasonnming.results.result.generic.PagedListResult;
  * @since 1.0.0 (2017-07-26)
  */
 @API(status = API.Status.STABLE, since = "1.0.0")
-public interface PagedListResultBuilder<TResultCode extends ResultCode, TElement>
+public interface PagedListResultBuilder<TResultCode extends ResultCode, TPage extends Page, TElement>
         extends ListResultBuilder<TResultCode, TElement>
 {
     /**
@@ -30,15 +31,13 @@ public interface PagedListResultBuilder<TResultCode extends ResultCode, TElement
      *
      * @apiNote 此标识设置后只会影响最终 {@link #build()}方法中执行的逻辑，不会影响其它的设置方法。
      */
-    PagedListResultBuilder<TResultCode, TElement> restricted(boolean restricted);
+    PagedListResultBuilder<TResultCode, TPage, TElement> restricted(boolean restricted);
 
     /**
      * 构建完整的{@link PagedListResult}。
      *
      * @return 完整的 {@link PagedListResult}。
-     *
-     * @throws IllegalArgumentException 当 {@link #restricted} 为{@code true}，且同时设置了{@link #page pageSize}、{@link #totalSize}和{@link #totalPage}。
      */
     @Override
-    PagedListResult<TResultCode, TElement> build();
+    PagedListResult<TResultCode, TPage, TElement> build();
 }
