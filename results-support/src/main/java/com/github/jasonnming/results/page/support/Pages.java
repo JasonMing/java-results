@@ -111,8 +111,8 @@ public final class Pages
     public static Page copy(final Page page)
     {
         return new DefaultPage(
-                page.getCurrentPage(),
-                page.getPageSize(),
+                page.getNumber(),
+                page.getSize(),
                 page instanceof RollingPage ? ((RollingPage)page).hasNextPage() : null,
                 page instanceof FixedPage ? ((FixedPage)page).getTotalPage() : null,
                 page instanceof FixedPage ? ((FixedPage)page).getTotalSize() : null);
@@ -121,8 +121,8 @@ public final class Pages
     public static RollingPage copy(final Page page, final boolean hasNextPage)
     {
         return new DefaultPage(
-                page.getCurrentPage(),
-                page.getPageSize(),
+                page.getNumber(),
+                page.getSize(),
                 hasNextPage,
                 page instanceof FixedPage ? ((FixedPage)page).getTotalPage() : null,
                 page instanceof FixedPage ? ((FixedPage)page).getTotalSize() : null);
@@ -132,8 +132,8 @@ public final class Pages
     {
         ensureRequestPageValid(page);
 
-        final long currentPage = page.getCurrentPage();
-        final long pageSize = page.getPageSize();
+        final long currentPage = page.getNumber();
+        final long pageSize = page.getSize();
         final long totalPage = totalSize / pageSize + (totalSize % pageSize == 0 ? 0 : 1);
         final boolean hasNextPage = currentPage < totalPage;
 
@@ -150,20 +150,20 @@ public final class Pages
         ensureRequestPageValid(page);
 
         return new DefaultPage(
-                page.getCurrentPage(),
-                page.getPageSize(),
-                page.getCurrentPage() < totalPage,
+                page.getNumber(),
+                page.getSize(),
+                page.getNumber() < totalPage,
                 totalPage,
                 totalSize);
     }
 
     private static void ensureRequestPageValid(final Page requestPage)
     {
-        if (requestPage.getCurrentPage() == null)
+        if (requestPage.getNumber() == null)
         {
             throw new IllegalArgumentException("[page] in requestPage cannot be null.");
         }
-        if (requestPage.getPageSize() == null)
+        if (requestPage.getSize() == null)
         {
             throw new IllegalArgumentException("[pageSize] in requestPage cannot be null.");
         }
@@ -200,8 +200,8 @@ public final class Pages
                 throw new IllegalArgumentException("Parameter [page] cannot be null.");
             }
 
-            this.currentPage = page.getCurrentPage();
-            this.pageSize = page.getPageSize();
+            this.currentPage = page.getNumber();
+            this.pageSize = page.getSize();
 
             if (page instanceof RollingPage)
             {

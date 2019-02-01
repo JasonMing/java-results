@@ -14,7 +14,7 @@ public interface Page
      *
      * @return 当前页码。
      */
-    Long getCurrentPage();
+    Long getNumber();
 
     /**
      * 获取分页大小，从0开始。
@@ -22,5 +22,5 @@ public interface Page
      *
      * @return 分页大小。
      */
-    Long getPageSize();
+    Long getSize();
 }

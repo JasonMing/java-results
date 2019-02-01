@@ -16,9 +16,9 @@ class DefaultPage implements Page, RollingPage, FixedPage, Serializable
 {
     private static final long serialVersionUID = 0x2c29589ac7ddc6c4L;
 
-    private final Long currentPage;
+    private final Long number;
 
-    private final Long pageSize;
+    private final Long size;
 
     private final Boolean hasNextPage;
 
@@ -31,32 +31,32 @@ class DefaultPage implements Page, RollingPage, FixedPage, Serializable
      */
     DefaultPage()
     {
-        this.currentPage = null;
-        this.pageSize = null;
+        this.number = null;
+        this.size = null;
         this.hasNextPage = null;
         this.totalPage = null;
         this.totalSize = null;
     }
 
-    DefaultPage(final Long currentPage, final Long pageSize, final Boolean hasNextPage, final Long totalPage, final Long totalSize)
+    DefaultPage(final Long number, final Long size, final Boolean hasNextPage, final Long totalPage, final Long totalSize)
     {
-        this.currentPage = currentPage;
-        this.pageSize = pageSize;
+        this.number = number;
+        this.size = size;
         this.hasNextPage = hasNextPage;
         this.totalPage = totalPage;
         this.totalSize = totalSize;
     }
 
     @Override
-    public Long getCurrentPage()
+    public Long getNumber()
     {
-        return this.currentPage;
+        return this.number;
     }
 
     @Override
-    public Long getPageSize()
+    public Long getSize()
     {
-        return this.pageSize;
+        return this.size;
     }
 
     @Override
@@ -89,8 +89,8 @@ class DefaultPage implements Page, RollingPage, FixedPage, Serializable
             return false;
         }
         final DefaultPage that = (DefaultPage)o;
-        return Objects.equals(this.currentPage, that.currentPage)
-                && Objects.equals(this.pageSize, that.pageSize)
+        return Objects.equals(this.number, that.number)
+                && Objects.equals(this.size, that.size)
                 && Objects.equals(this.hasNextPage, that.hasNextPage)
                 && Objects.equals(this.totalPage, that.totalPage)
                 && Objects.equals(this.totalSize, that.totalSize);
@@ -99,6 +99,6 @@ class DefaultPage implements Page, RollingPage, FixedPage, Serializable
     @Override
     public int hashCode()
     {
-        return Objects.hash(this.currentPage, this.pageSize, this.hasNextPage, this.totalPage, this.totalSize);
+        return Objects.hash(this.number, this.size, this.hasNextPage, this.totalPage, this.totalSize);
     }
 }

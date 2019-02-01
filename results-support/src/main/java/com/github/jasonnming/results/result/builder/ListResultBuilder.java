@@ -31,7 +31,7 @@ public interface ListResultBuilder<TResultCode extends ResultCode, TElement>
      *
      * @return {@link PagedListResultBuilder}。
      *
-     * @throws IllegalArgumentException 当{@link Page#getCurrentPage()}或{@link Page#getPageSize()}小于1。
+     * @throws IllegalArgumentException 当{@link Page#getNumber()}或{@link Page#getSize()}小于1。
      */
     @API(status = API.Status.EXPERIMENTAL, since = "1.0.0")
     <TPage extends Page> PagedListResultBuilder<TResultCode, TPage, TElement> page(TPage page);

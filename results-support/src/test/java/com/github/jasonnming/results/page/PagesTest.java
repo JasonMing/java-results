@@ -17,8 +17,8 @@ class PagesTest
     {
         final Page page = Pages.create(1, 20);
 
-        Assertions.assertEquals((Long)Pages.FIRST_PAGE_INDEX, page.getCurrentPage());
-        Assertions.assertEquals((Long)Pages.DEFAULT_PAGE_SIZE, page.getPageSize());
+        Assertions.assertEquals((Long)Pages.FIRST_PAGE_INDEX, page.getNumber());
+        Assertions.assertEquals((Long)Pages.DEFAULT_PAGE_SIZE, page.getSize());
     }
 
     @Test
@@ -26,8 +26,8 @@ class PagesTest
     {
         final Page page = Pages.create(0, -1);
 
-        Assertions.assertEquals((Long)0L, page.getCurrentPage());
-        Assertions.assertEquals((Long)(-1L), page.getPageSize());
+        Assertions.assertEquals((Long)0L, page.getNumber());
+        Assertions.assertEquals((Long)(-1L), page.getSize());
     }
 
     @Test
@@ -35,8 +35,8 @@ class PagesTest
     {
         final Page page = Pages.firstDefaultSizePage();
 
-        Assertions.assertEquals((Long)Pages.FIRST_PAGE_INDEX, page.getCurrentPage());
-        Assertions.assertEquals((Long)Pages.DEFAULT_PAGE_SIZE, page.getPageSize());
+        Assertions.assertEquals((Long)Pages.FIRST_PAGE_INDEX, page.getNumber());
+        Assertions.assertEquals((Long)Pages.DEFAULT_PAGE_SIZE, page.getSize());
     }
 
     @Test
@@ -44,8 +44,8 @@ class PagesTest
     {
         final Page page = Pages.firstPage(10);
 
-        Assertions.assertEquals((Long)Pages.FIRST_PAGE_INDEX, page.getCurrentPage());
-        Assertions.assertEquals((Long)10L, page.getPageSize());
+        Assertions.assertEquals((Long)Pages.FIRST_PAGE_INDEX, page.getNumber());
+        Assertions.assertEquals((Long)10L, page.getSize());
     }
 
     @Test
@@ -53,8 +53,8 @@ class PagesTest
     {
         final Page page = Pages.firstPage(-1);
 
-        Assertions.assertEquals((Long)Pages.FIRST_PAGE_INDEX, page.getCurrentPage());
-        Assertions.assertEquals((Long)(-1L), page.getPageSize());
+        Assertions.assertEquals((Long)Pages.FIRST_PAGE_INDEX, page.getNumber());
+        Assertions.assertEquals((Long)(-1L), page.getSize());
     }
 
     // @Test
@@ -102,13 +102,13 @@ class PagesTest
     // {
     //     final Page page1 = Pages.toPage(Pages.limit(5, 11));
     //
-    //     Assertions.assertEquals(1, page1.getCurrentPage());
-    //     Assertions.assertEquals(11, page1.getPageSize());
+    //     Assertions.assertEquals(1, page1.getNumber());
+    //     Assertions.assertEquals(11, page1.getSize());
     //
     //     final Page page2 = Pages.toPage(Pages.limit(11, 11));
     //
-    //     Assertions.assertEquals(2, page2.getCurrentPage());
-    //     Assertions.assertEquals(11, page2.getPageSize());
+    //     Assertions.assertEquals(2, page2.getNumber());
+    //     Assertions.assertEquals(11, page2.getSize());
     // }
     //
     // @Test

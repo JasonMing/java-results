@@ -10,7 +10,7 @@ package com.github.jasonnming.results.page;
 public interface FixedPage extends RollingPage
 {
     /**
-     * 获取以{@link #getPageSize()}为分页大小的情况下的总页数。
+     * 获取以{@link #getSize()}为分页大小的情况下的总页数。
      *
      * @return 总页数，{@code null}表示不明确。
      */
