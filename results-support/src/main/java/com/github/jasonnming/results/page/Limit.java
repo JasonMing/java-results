@@ -15,14 +15,14 @@ public interface Limit
     /**
      * 限制开始的记录行数，从0开始。
      *
-     * @return 开始的记录行数，从0开始
+     * @return 开始的记录行数，从0开始。
      */
     long getOffset();
 
     /**
      * 限制需要的记录行数，从1开始。
      *
-     * @return 需要的记录行数，从1开始
+     * @return 需要的记录行数，从1开始。
      */
     long getLimit();
 }
